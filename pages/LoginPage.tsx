@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-// FIX: Removed v9 modular import for signInWithEmailAndPassword.
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from '../services/firebase';
 
 const LoginPage: React.FC = () => {
@@ -23,8 +22,7 @@ const LoginPage: React.FC = () => {
     }
 
     try {
-      // FIX: Switched from v9's signInWithEmailAndPassword(auth, ...) to compat's auth.signInWithEmailAndPassword(...)
-      await auth.signInWithEmailAndPassword(email, password);
+      await signInWithEmailAndPassword(auth, email, password);
       // onAuthStateChanged in AppContext will handle setting the user state
       navigate('/account');
     } catch (err: any) {

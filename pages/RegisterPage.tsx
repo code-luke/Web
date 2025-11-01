@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-// FIX: Removed v9 modular imports for auth and firestore.
-import firebase from 'firebase/compat/app';
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from '../services/firebase';
 
 
@@ -34,17 +33,15 @@ const RegisterPage: React.FC = () => {
     
     try {
         // 1. Create user in Firebase Authentication
-        // FIX: Switched from v9's createUserWithEmailAndPassword(auth, ...) to compat's auth.createUserWithEmailAndPassword(...)
-        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user!;
 
         // 2. Create a corresponding user document in Firestore
-        // FIX: Switched to compat API for creating a document and setting its data.
-        await db.collection("users").doc(user.uid).set({
+        const userDocRef = doc(db, "users", user.uid);
+        await setDoc(userDocRef, {
             email: user.email,
             subscriptionStatus: 'free',
-            // FIX: Switched from v9's serverTimestamp() to compat's firebase.firestore.FieldValue.serverTimestamp()
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            createdAt: serverTimestamp(),
         });
 
         // 3. Navigate to account page, onAuthStateChanged will handle the rest
