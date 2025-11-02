@@ -8,12 +8,13 @@ import 'firebase/compat/firestore';
 // Anda bisa mendapatkannya dari Firebase Console proyek Anda:
 // Project Settings > General > Your apps > Web app > Firebase SDK snippet > Config
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyAXbQu13OiMd-hpWvJGR3Zz9VJ7dI3T2X8",
+  authDomain: "jurusanku-app-5d190.firebaseapp.com",
+  projectId: "jurusanku-app-5d190",
+  storageBucket: "jurusanku-app-5d190.firebasestorage.app",
+  messagingSenderId: "390147130189",
+  appId: "1:390147130189:web:6ba5a18724488f68e72d04",
+  measurementId: "G-537XN3G5KD"
 };
 
 // Inisialisasi Firebase
