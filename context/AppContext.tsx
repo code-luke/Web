@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
-import { onAuthStateChanged, signOut, User as FirebaseUser } from "firebase/auth";
-import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+// FIX: The User type can still be imported from 'firebase/auth' with compat libraries.
+import { User as FirebaseUser } from "firebase/auth";
+// FIX: Removed v9 modular firestore imports as they are replaced by compat API calls.
 import { auth, db } from '../services/firebase';
 import { InterestResult, Jurusan, User } from '../types';
 
@@ -26,11 +27,14 @@ export const AppContextProvider: React.FC<{ children: ReactNode }> = ({ children
   const [loadingAuth, setLoadingAuth] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
+    // FIX: Switched from v9's onAuthStateChanged(auth, ...) to compat's auth.onAuthStateChanged(...)
+    const unsubscribe = auth.onAuthStateChanged(async (firebaseUser: FirebaseUser | null) => {
       if (firebaseUser) {
         // User is signed in, get their data from Firestore
-        const userDocRef = doc(db, "users", firebaseUser.uid);
-        const userDocSnap = await getDoc(userDocRef);
+        // FIX: Switched from v9's doc(db, "users", ...) to compat's db.collection(...).doc(...)
+        const userDocRef = db.collection("users").doc(firebaseUser.uid);
+        // FIX: Switched from v9's getDoc(userDocRef) to compat's userDocRef.get()
+        const userDocSnap = await userDocRef.get();
 
         if (userDocSnap.exists()) {
           const userData = userDocSnap.data()!;
@@ -43,7 +47,8 @@ export const AppContextProvider: React.FC<{ children: ReactNode }> = ({ children
             // This case might happen if user is created in Auth but not in Firestore.
             // We can create it here as a fallback.
             const newUser: Omit<User, 'uid' | 'email'> = { subscriptionStatus: 'free' };
-            await setDoc(userDocRef, newUser);
+            // FIX: Switched from v9's setDoc(userDocRef, ...) to compat's userDocRef.set(...)
+            await userDocRef.set(newUser);
             setCurrentUser({
                 uid: firebaseUser.uid,
                 email: firebaseUser.email,
@@ -63,7 +68,8 @@ export const AppContextProvider: React.FC<{ children: ReactNode }> = ({ children
 
   const logout = async () => {
     try {
-        await signOut(auth);
+        // FIX: Switched from v9's signOut(auth) to compat's auth.signOut()
+        await auth.signOut();
     } catch (error) {
         console.error("Error signing out: ", error);
     }
@@ -71,9 +77,11 @@ export const AppContextProvider: React.FC<{ children: ReactNode }> = ({ children
 
   const upgradeAccount = async () => {
       if (currentUser) {
-        const userDocRef = doc(db, "users", currentUser.uid);
+        // FIX: Switched from v9's doc(db, ...) to compat's db.collection(...).doc(...)
+        const userDocRef = db.collection("users").doc(currentUser.uid);
         try {
-            await updateDoc(userDocRef, { subscriptionStatus: 'premium' });
+            // FIX: Switched from v9's updateDoc(userDocRef, ...) to compat's userDocRef.update(...)
+            await userDocRef.update({ subscriptionStatus: 'premium' });
             setCurrentUser(prev => prev ? { ...prev, subscriptionStatus: 'premium' } : null);
         } catch (error) {
             console.error("Error upgrading account: ", error);
